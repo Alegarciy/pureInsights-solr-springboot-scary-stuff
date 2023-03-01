@@ -24,13 +24,13 @@ public class MovieController {
   private MovieService solrMovieRepositoryImpl;
 
   @Operation(summary = "Search the top-rated movie in a year, or all the top movies in a year for all the years", description = "Executes a search with a facet by years and sorted by rate of a or many movies in the collection")
-  @GetMapping(value = "/topRatedMovieForAllYears")
+  @GetMapping(value = "/topRatedMovieForAllYears", produces = "application/json")
   public ResponseEntity<List<MovieSolr>> findAllByDate(@RequestParam(value = "Date", required = false) String dateInput) {
     return ResponseEntity.ok(solrMovieRepositoryImpl.findAllByDate(dateInput));
   }
 
   @Operation(summary = "Search the top-rated movies filtered by genre", description = "Executes a search for genres and movies and then sorts it by the rate of each movie in the collection")
-  @GetMapping(value = "/topRatedGenre")
+  @GetMapping(value = "/topRatedGenre", produces = "application/json")
   public ResponseEntity<List<MovieSolr>> findTopRatedMoviesByGenre(@RequestParam("genre") String genre, @RequestParam("amount") int amount) {
     return ResponseEntity.ok(solrMovieRepositoryImpl.findTopRatedMoviesByGenre(genre, amount));
   }

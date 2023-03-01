@@ -1,12 +1,21 @@
 package com.pureinsights.exercise.backend.repository;
 
 import com.opencsv.CSVReader;
+import com.pureinsights.exercise.backend.model.MovieSolr;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.query.*;
+import org.springframework.data.solr.core.query.result.FacetFieldEntry;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +31,7 @@ import java.util.Objects;
  */
 @Repository
 @Slf4j
-public class SolrMovieRepositoryImpl {
+public class SolrMovieRepositoryImpl implements  SolrMovieRepository {
 
     private static final String MOVIE_COLLECTION = "imdb.csv";
     private static final String[] FIELD_VALUES = {"Name", "Date", "Rate", "Votes", "Genre", "Duration", "Type", "Certificate", "Episodes", "Nudity", "Violence", "Profanity", "Alcohol", "Frightening"};
@@ -30,6 +39,9 @@ public class SolrMovieRepositoryImpl {
 
     @Autowired
     private SolrClient solrClient; // Connects to Solr Client
+
+    @Autowired
+    private SolrTemplate solrTemplate;
 
     /**
      Creates a Solr collection named "films" with default config if it does not exist.
@@ -110,6 +122,51 @@ public class SolrMovieRepositoryImpl {
             return Objects.equals(value, "No Votes") ? "0" : value;
         }
         return value;
+    }
+
+    public List<MovieSolr> findTopRatedMovieYearly(Sort sort) {
+        List<MovieSolr> topRatedMovies = new ArrayList<>();
+        List<String> yearList = new ArrayList<>();
+
+        // Find the distinct years in the Solr index
+        FacetPage<MovieSolr> response = findAllByDate();
+        Page<FacetFieldEntry> facetField = response.getFacetResultPage("Date");
+
+        // Add each distinct year to the yearList
+        for (FacetFieldEntry entry : facetField.getContent()) {
+            String date = entry.getValue();
+            yearList.add(date);
+        }
+
+        // Find the top-rated movie for each year in the yearList
+        for(String date : yearList) {
+            List<MovieSolr> topMovie = findTopRatedMovieForYear(date);
+            topRatedMovies.add(topMovie.get(0));
+        }
+
+        return topRatedMovies;
+    }
+
+    public List<MovieSolr> findTopRatedMovieForYear(String dateInput) {
+        String queryString = "Rate:[* TO " + Double.MAX_VALUE + "] AND Date:" + dateInput;
+        SimpleQuery query = new SimpleQuery(queryString, Pageable.ofSize(1));
+        Page<MovieSolr> page = solrTemplate.query(SOLR_COLLECTION, query, MovieSolr.class);
+        return page.getContent();
+    }
+
+    public FacetPage<MovieSolr> findAllByDate() {
+        Criteria criteria = new Criteria(Criteria.WILDCARD).expression("*");
+        FacetOptions facetOptions = new FacetOptions().addFacetOnField("Date").setFacetLimit(-1);
+        FacetQuery facetQuery = new SimpleFacetQuery(criteria, PageRequest.of(0, 1));
+        facetQuery.setFacetOptions(facetOptions);
+        return solrTemplate.queryForFacetPage(SOLR_COLLECTION, facetQuery, MovieSolr.class);
+    }
+
+    public List<MovieSolr> findTopRatedByGenre(String genre, int amount) {
+        String queryString = "Genre:\"" + genre + "\"";
+        SimpleQuery query = new SimpleQuery(queryString, Pageable.ofSize(amount));
+        Page<MovieSolr> page = solrTemplate.query(SOLR_COLLECTION, query, MovieSolr.class);
+        return page.getContent();
     }
 
 }
