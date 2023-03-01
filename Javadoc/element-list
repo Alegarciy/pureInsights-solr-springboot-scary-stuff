@@ -1,0 +1,6 @@
+com.pureinsights.exercise.backend
+com.pureinsights.exercise.backend.configuration
+com.pureinsights.exercise.backend.controller
+com.pureinsights.exercise.backend.model
+com.pureinsights.exercise.backend.repository
+com.pureinsights.exercise.backend.service
