@@ -1,7 +1,5 @@
 package com.pureinsights.exercise.backend.service;
 
-import com.pureinsights.exercise.backend.model.Movie;
-import com.pureinsights.exercise.backend.repository.MovieRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
