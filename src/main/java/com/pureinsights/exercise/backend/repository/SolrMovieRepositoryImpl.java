@@ -149,7 +149,8 @@ public class SolrMovieRepositoryImpl implements  SolrMovieRepository {
 
     public List<MovieSolr> findTopRatedMovieForYear(String dateInput) {
         String queryString = "Rate:[* TO " + Double.MAX_VALUE + "] AND Date:" + dateInput;
-        SimpleQuery query = new SimpleQuery(queryString, Pageable.ofSize(1));
+        Sort sort = Sort.by(Sort.Direction.DESC, "Rate");
+        SimpleQuery query = new SimpleQuery(queryString, PageRequest.of(0, 1, sort));
         Page<MovieSolr> page = solrTemplate.query(SOLR_COLLECTION, query, MovieSolr.class);
         return page.getContent();
     }
@@ -164,7 +165,8 @@ public class SolrMovieRepositoryImpl implements  SolrMovieRepository {
 
     public List<MovieSolr> findTopRatedByGenre(String genre, int amount) {
         String queryString = "Genre:\"" + genre + "\"";
-        SimpleQuery query = new SimpleQuery(queryString, Pageable.ofSize(amount));
+        Sort sort = Sort.by(Sort.Direction.DESC, "Rate");
+        SimpleQuery query = new SimpleQuery(queryString, PageRequest.of(0, amount, sort));
         Page<MovieSolr> page = solrTemplate.query(SOLR_COLLECTION, query, MovieSolr.class);
         return page.getContent();
     }

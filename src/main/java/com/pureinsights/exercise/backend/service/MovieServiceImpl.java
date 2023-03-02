@@ -1,17 +1,11 @@
 package com.pureinsights.exercise.backend.service;
 
 import com.pureinsights.exercise.backend.model.MovieSolr;
-import com.pureinsights.exercise.backend.repository.SolrMovieRepository;
 import com.pureinsights.exercise.backend.repository.SolrMovieRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.solr.core.query.result.FacetFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

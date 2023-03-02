@@ -2,19 +2,15 @@ package com.pureinsights.exercise.backend.service;
 
 import com.pureinsights.exercise.backend.model.MovieSolr;
 import com.pureinsights.exercise.backend.repository.SolrMovieRepositoryImpl;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link MovieServiceImpl}
@@ -46,8 +42,21 @@ class MovieServiceImplTest {
     // Integrated test 2 - Test if the repository return the same as the service when a year is given
     moviesFromRepo = movieRepository.findTopRatedMovieForYear("2015");
     assertEquals(movies, moviesFromRepo);
-
   }
+
+  @Test
+  void findTopRatedMoviesByGenre() {
+
+    // Test the case where findTopRatedMoviesByGenre is null
+    List<MovieSolr> movies = movieService.findTopRatedMoviesByGenre("Action", 10);
+    assertNotNull(movies);
+
+    // Integrated test - Test if the repository return the same as the service when a genre is given
+    List<MovieSolr> moviesFromRepo = movieRepository.findTopRatedByGenre("Action", 10);
+    assertEquals(movies, moviesFromRepo);
+  }
+
+
 
 
 }
